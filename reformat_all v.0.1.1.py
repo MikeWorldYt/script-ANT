@@ -2,8 +2,9 @@
 import os, sys, time, re
 from datetime import datetime
 GAP = "  │   "
-SEL = "  ├──── ▼  "
+SEL = "  └──── ▼  "
 ASK = "  └── > > > "
+
 
 STORE_TEMPLATE = { "date": False, "breadcrumb": False, "holder": False, "ident": ""}
 store = STORE_TEMPLATE.copy()
@@ -62,16 +63,23 @@ def add_breadcrumb(bread_string, target_fname=None):
 
 def run_survey():
     global store
+    def render_preview(filename="myFile.jpg"):
+        date = f"({store['date']})" if isinstance(store["date"], str) else ""
+        breadcrumb = store["breadcrumb"] or ""
+        holder = f"[{store['holder']}]" if store["holder"] else ""
+        ident = f"_{store['ident']}" if store["ident"] else ""
+        prefix = "".join([date, breadcrumb, holder, ident])
+        return f"\n PREVIEW FORMAT: {prefix}_{filename}" if prefix else f"\n PREVIEW FORMAT: {filename}"
     # BP - Step 1
     bp_1 = "\n \n Step 1/4: Do you need date?"
-    screen = f"\n PREVIEW FORMAT: myFile.jpg {bp_1}"
+    screen = f"{render_preview()} {bp_1}"
     print(f"{screen} y/n")
     while True: # BP - Step 1
         ans = input(f"{ASK}").strip().lower()
         if ans in ['', 'y', 'n']:
             if ans in ['y', '']:
                 clear_screen()
-                print(f"{screen} → yes \n{GAP}Insert a date (Press Enter to use today's date):")
+                print(f"{screen} → Yes → [ Editing... ] \n{GAP}Insert a date (Press Enter to use today's date):")
                 while True:
                     date_input = input(f"{ASK}").strip()
                     if not date_input:
@@ -84,27 +92,29 @@ def run_survey():
                     store["date"] = formatted
                     break
                 break
+            elif ans == 'n':
+                store["date"] = False
+                break
         print(f"{GAP}( ! ) INPUT_ERROR_001:  Invalid option. Use \"y\" to Yes or \"n\" to No. ")
+    clear_screen(), print(f"{render_preview()} [ UPDATED ]\n \n Step 1/4: [ Loading... ]")
     time.sleep(1), clear_screen()
    #
     # BP - Step 2
-    bp_2 = "\n \n Step 2/4: Add the breadcrumb"
-    date = f"({store['date']})" if isinstance(store["date"], str) else ""
-    und = f"_" if store["date"] else ""
-    screen = f"\n PREVIEW FORMAT: {date}{und}myFile.jpg {bp_2}"
+    bp_2 = "\n \n Step 2/4: Would you like to add the breadcrumb now?"
+    screen = f"{render_preview()}{bp_2}"
     print(f"{screen} y/n")
     while True: # BP - Step 2
         ans = input(f"{ASK}").strip().lower()
         if ans in ['', 'y', 'n']:
             if ans in ['y', '']:
                 clear_screen()
-                custom = input(f"{screen} → yes \n{GAP}Insert your breadcrumb (Press Enter to use the current folder name):\n{ASK}").strip()
+                custom = input(f"{screen} → Yes → [ Editing... ] \n{GAP}Insert your breadcrumb (Press Enter to use the current folder name):\n{ASK}").strip()
                 store["breadcrumb"] = custom if custom else os.path.basename(os.getcwd())
                 break
             if ans == 'n':
                 while True:
                     clear_screen()
-                    print(f"{screen} → no \n{SEL}Select an option (or press Enter for default \"$na\"):\n{GAP}{GAP}1) $na - Not Apply - Not Available\n{GAP}{GAP}2) $cx - No Context")
+                    print(f"{screen} → No, use predefined \n{SEL}Select an option (Press Enter to use default \"$na\"):\n{GAP}{GAP}1) $na - Not Apply - Not Available\n{GAP}{GAP}2) $cx - No Context")
                     opt = input(f"{GAP}{ASK}").strip()
                     if not opt:
                         opt = '1'
@@ -115,18 +125,19 @@ def run_survey():
                 break
         else:
             print(f"{GAP}! INPUT_ERROR_001:  Invalid option or non-existent... Try again ")
-    clear_screen()
+    clear_screen(), print(f"{render_preview()} [ UPDATED ]\n \n Step 2/4: [ Loading... ]")
+    time.sleep(1), clear_screen()
    #
     # BP - Step 3
     bp_3 = "\n \n Step 3/4: Add a Holder"
-    screen = f"\n PREVIEW FORMAT: {date}{store['breadcrumb']}_myFile.jpg {bp_3}"
-    print(f"{screen}")
-    holder_input = input(f"{GAP}Insert your holder name (or press Enter to choose a predefined option):\n{ASK}").strip()
+    screen = f"{render_preview()} {bp_3}"
+    print(f"{screen} → [ Editing... ] ")
+    holder_input = input(f"{GAP}Insert the name (Press Enter to choose a predefined option):\n{ASK}").strip()
     if holder_input:
         store["holder"] = holder_input
     else:
         clear_screen()
-        print(f"{screen} → predefined \n{SEL}Select an option (or press Enter for default \"$uk\"):\n{GAP}{GAP}1) $uk - Unknown\n{GAP}{GAP}2) $up - Unidentified person\n{GAP}{GAP}3) $uc - Unidentified character")
+        print(f"{screen} → predefined \n{SEL}Select an option (Press Enter to use default \"$uk\"):\n{GAP}{GAP}1) $uk - Unknown\n{GAP}{GAP}2) $up - Unidentified person\n{GAP}{GAP}3) $uc - Unidentified character")
         while True:
             opt = input(f"{GAP}{ASK}").strip()
             if not opt:
@@ -137,24 +148,25 @@ def run_survey():
                 break
             else:
                 print(f"{GAP}{GAP}! INPUT_ERROR_001:  Invalid option or non-existent... Try again.")
-    clear_screen()
+    clear_screen(), print(f"{render_preview()} [ UPDATED ]\n \n Step 3/4: [ Loading... ]")
+    time.sleep(1) ,clear_screen()
    #
     # BP - Step 4
     bp_4 = "\n \n Step 4/4: Add a identifier code"
-    screen = f"\n PREVIEW FORMAT: {date}{store['breadcrumb']}[{store['holder']}]_myFile.jpg {bp_4}"
-    print(f"{screen} (Press Enter for default \"$ID\"):")
+    screen = f"{render_preview()}{bp_4}"
+    print(f"{screen} → [ Editing... ] ")
     while True: 
-        custom_id = input(f"{ASK}").strip()
+        custom_id = input(f"{GAP} Insert the ID (Press Enter to use default \"$ID\"):\n{ASK}").strip()
         if not custom_id:
             identifier = '$ID'
         elif custom_id.isalpha() and len(custom_id) == 3:
             identifier = custom_id.upper()
         else:
-            print(f"{GAP}! INPUT_ERROR_002_n3:  Invalid input; only allows alphabetic characters (no numbers or symbols), must be exactly 3 characters... Try again ")
+            print(f"{GAP}( ! ) INPUT_ERROR_002: Invalid input; only allows 3 alphabetic characters (no numbers or symbols).")
             continue
         # Confirmation
         clear_screen()
-        print(f"{screen} → {identifier}\n{GAP}CONFIRMATION: The ID to be formatted is \"{identifier}\"\n{GAP}Enter to continue - \"c\" to cancel:")
+        print(f"{screen} → {identifier}\n{GAP}\n{GAP}CONFIRMATION: The ID to be formatted is \"{identifier}\"\n{GAP}Press \"Enter\" to continue or \"c\" to cancel:\n{GAP}")
         while True:
             confirm = input(f"{ASK}").strip().lower()
             if confirm in ['', 'ok']:  # continuar
@@ -165,20 +177,22 @@ def run_survey():
                 print(f"\n Process cancelled. One second please...")
                 time.sleep(2)
                 clear_screen()
-                print(f"\n PREVIEW FORMAT: {date}{store['breadcrumb']}[{store['holder']}]_myFile.jpg{bp_4} (Press Enter for default \"$ID\"):")
+                print(f"{render_preview()}{bp_4} (Press Enter to use default \"$ID\"):")
                 break
             else:
                 print(f"{GAP}! INPUT_ERROR_001:  Invalid option or non-existent... Try again")
         if confirm in ['', 'ok']:
             break
+    clear_screen(), print(f"{render_preview()} [ UPDATED ]\n \n Step 4/4: [ Loading... ]")
+    time.sleep(1) ,clear_screen()
    #
     # Final confirmation
-    fp = f"\n ATTENTION: Please review the preview format before proceeding.\n Once confirmed, the script will rename your files using this format\n This process cannot be undone.\n\n Note: Folders or any files starting with \"~\" will be ignored."
-    preview = f"\n PREVIEW FORMAT: {date}{store['breadcrumb']}[{store['holder']}]_{identifier}_myFile.jpg \n"
-    screen = f"{preview}{fp}"
+    fp = f"{GAP}\n{GAP}ATTENTION: Please review the preview format before proceeding.\n{GAP}Once confirmed, the script will rename your files using this format\n{GAP}This process cannot be undone.\n{GAP}\n{GAP}Note: Folders or any files starting with \"~\" will be ignored.\n{GAP}"
+    preview = f"{render_preview()} \n"
+    screen = f"{preview}\n Confirmation: Type \"ok\" to confirm or \"r\" to reEdit the format: \n{fp}"
     print(f"{screen}")
     while True:
-        confirm = input(f"{GAP} Type \"ok\" to confirm or \"r\" to reEdit the format: \n{ASK}").strip().lower()
+        confirm = input(f"{ASK}").strip().lower()
         if confirm in ['y', 'ok']:  # continuar
             clear_screen()
             print(f"{preview} \n Applying changes..."), time.sleep(1)
@@ -186,7 +200,7 @@ def run_survey():
             return 'done'
         elif confirm == 'r':
             clear_screen()
-            print(f"{preview}{fp}\n{GAP}\n{ASK}[i] Process cancelled, restarting..."), time.sleep(2), clear_screen()
+            print(f"{screen}\n{ASK}[i] Process cancelled, restarting..."), time.sleep(2), clear_screen()
             store = STORE_TEMPLATE.copy()
             return 'restart'
         else:
