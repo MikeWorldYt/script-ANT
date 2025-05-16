@@ -45,7 +45,7 @@ def add_date(date_string, target_fname=None):
     new_name = f"({date_string}){target_fname}"
     new_name_date = new_name
     master_index += len(f"({date_string})")
-    print(f"{GAP}  ->  {new_name_date} --modified")
+    # print(f"{GAP}  ->  {new_name_date} --modified")
 
 def add_breadcrumb(bread_string, target_fname=None):
     global new_name_bread, master_index
@@ -59,7 +59,7 @@ def add_breadcrumb(bread_string, target_fname=None):
         processed_name = f"{bread_string}{target_fname}"
     new_name_bread = processed_name
     master_index += len(bread_string)
-    print(f"{GAP}  ->  {new_name_bread} --modified")
+   # print(f"{GAP}  ->  {new_name_bread} --modified")
 
 def run_survey():
     global store
@@ -229,9 +229,8 @@ def rename_files():
         # print(f"DEBUG::: >>p {new_name_bread} \nDEBUG::: >>p master_index = {master_index} \n{GAP} -   next step")
         formated_name = f"~{new_name_bread[:master_index]}[{store['holder']}]_{store['ident']}_{new_name_bread[master_index:]}"
         print(f"{GAP} >>> {formated_name} \n{GAP}")
-        #
-        # dst = os.path.join(path, formated_name)
-        # dst = os.rename(src, dst)
+        dst = os.path.join(path, formated_name)
+        dst = os.rename(src, dst)
         master_index = 0 # reset master_index
     print(f"{GAP}[i] All files renamed.\n")
 
@@ -240,6 +239,7 @@ if __name__ == '__main__':
     while run_survey() == 'restart':
         pass
 
+    print()
     time_close = 500
     for time_close in range(time_close, 0, -1):
         print(f"\r ▲ Its done, You don't have to close this window, it will close by itself. Time remaining ({time_close} seg)", end="")
